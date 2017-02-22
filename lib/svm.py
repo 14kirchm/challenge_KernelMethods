@@ -1,6 +1,6 @@
 import numpy as np
 from numpy import linalg
-import cvxopt  #bhttps://courses.csail.mit.edu/6.867/wiki/images/a/a7/Qp-cvxopt.pdf
+import cvxopt  #https://courses.csail.mit.edu/6.867/wiki/images/a/a7/Qp-cvxopt.pdf
 import pylab as pl
 import matplotlib.pyplot as plt
 import os.path
@@ -37,13 +37,13 @@ class SVM():
                 K[i, j] = self.kernel(X[i], X[j])
 
         # solve QP
-        P = cvxopt.matrix(np.outer(Y, Y) * K, tc='d')
-        q = cvxopt.matrix(-1*np.ones(number_samples), tc='d')
-        A = cvxopt.matrix(np.resize(Y, (1, number_samples)), tc='d')
+        P = cvxopt.matrix(K, tc='d')
+        q = cvxopt.matrix(-Y, tc='d')
+        A = cvxopt.matrix(np.ones(1, number_samples), tc='d')
         b = cvxopt.matrix(0.0, tc='d')
-        G = cvxopt.matrix(np.vstack((np.eye(number_samples), -np.eye(number_samples))),tc='d')
+        G = cvxopt.matrix(np.vstack(np.diag(Y), -np.diag(Y)), tc='d')
         h = cvxopt.matrix(np.hstack((np.ones(number_samples) *
-            self.C, np.zeros(number_samples))), tc='d')
+                                    self.C, np.zeros(number_samples))), tc='d')
 
         solution = cvxopt.solvers.qp(P, q, G, h, A, b)
 
@@ -59,7 +59,7 @@ class SVM():
 
         # Intercept
         self.b = 0
-        indices = np.arange(len(alpha))[sv]  #non-zero lagrange multipliers indices
+        indices = np.arange(len(alpha))[sv]  # non-zero Lagrange multipliers indices
         for i in range(len(self.alpha)):
             self.b += self.support_vectors_y[i]
             self.b -= np.sum(self.alpha * self.support_vectors_y * K[indices[i], awaitsv])
@@ -107,7 +107,7 @@ class SVM():
         ax.contour(X1, X2, Z + 1, [0.0], colors='grey', linewidths=1, origin='lower')
         ax.contour(X1, X2, Z - 1, [0.0], colors='grey', linewidths=1, origin='lower')
 
-        legend.append('Classifier %d' %i)
+        legend.append('Classifier %d' % i)
         plt.savefig(path_to_fig + str(i) + '.eps', format='eps', dpi=1000)
         plt.close()
 
@@ -134,7 +134,7 @@ def one_vs_all(X, y, erase=True):
     return parameters
 
 
-def predict_multiclass(X,number_of_classes, parameters):
+def predict_multiclass(X, number_of_classes, parameters):
     decision_function = np.zeros((X.shape[0], number_of_classes))
 
     for i in range(number_of_classes):
