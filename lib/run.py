@@ -9,9 +9,9 @@ from svm import *
 path_to_results = '../results/'
 path_to_data = '../data/'
 
-X_test = pd.read_csv(path_to_data + 'Xte.csv', header = None)
+X_test = pd.read_csv(path_to_data + 'Xte.csv', header=None)
 Y_train = pd.read_csv(path_to_data + 'Ytr.csv')
-X_train = pd.read_csv(path_to_data + 'Xtr.csv', header = None)
+X_train = pd.read_csv(path_to_data + 'Xtr.csv', header=None)
 
 size_training = 1000
 

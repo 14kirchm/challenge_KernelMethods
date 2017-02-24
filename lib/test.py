@@ -50,7 +50,6 @@ def test_soft():
     correct = np.sum(Y_predict == Y_test)
     print("%d out of %d predictions correct" % (correct, len(Y_predict)))
 
-    clf.save_plot(X_train, Y_train, 1)
-
+    clf.save_plot(X_train, Y_train,1)
 
 test_soft()

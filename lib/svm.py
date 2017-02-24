@@ -39,9 +39,9 @@ class SVM():
         # solve QP
         P = cvxopt.matrix(K, tc='d')
         q = cvxopt.matrix(-Y, tc='d')
-        A = cvxopt.matrix(np.ones(1, number_samples), tc='d')
+        A = cvxopt.matrix(np.ones((1, number_samples)), tc='d')
         b = cvxopt.matrix(0.0, tc='d')
-        G = cvxopt.matrix(np.vstack(np.diag(Y), -np.diag(Y)), tc='d')
+        G = cvxopt.matrix(np.vstack((np.diag(Y), -np.diag(Y))), tc='d')
         h = cvxopt.matrix(np.hstack((np.ones(number_samples) *
                                     self.C, np.zeros(number_samples))), tc='d')
 
@@ -62,10 +62,10 @@ class SVM():
         indices = np.arange(len(alpha))[sv]  # non-zero Lagrange multipliers indices
         for i in range(len(self.alpha)):
             self.b += self.support_vectors_y[i]
-            self.b -= np.sum(self.alpha * self.support_vectors_y * K[indices[i], awaitsv])
+            self.b -= np.sum(self.alpha * self.support_vectors_y * K[indices[i], sv])
         self.b /= len(self.alpha)
 
-        # Weight vector
+        # Weight vector (only linear kernel ?)
         if self.kernel == linear_kernel:
             self.w = np.zeros(number_features)
             for i in range(len(self.alpha)):
