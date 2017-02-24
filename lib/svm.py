@@ -14,7 +14,7 @@ def linear_kernel(x, y):
     return np.dot(x, y)
 
 
-def polynomial_kernel(x, y, p=3):
+def polynomial_kernel(x, y, p=2):
     return (1 + np.dot(x, y)) ** p
 
 
@@ -65,7 +65,7 @@ class SVM():
             self.b -= np.sum(self.alpha * self.support_vectors_y * K[indices[i], sv])
         self.b /= len(self.alpha)
 
-        # Weight vector (only linear kernel ?)
+        # Weight vector (only linear kernel)
         if self.kernel == linear_kernel:
             self.w = np.zeros(number_features)
             for i in range(len(self.alpha)):
@@ -112,7 +112,7 @@ class SVM():
         plt.close()
 
 
-def one_vs_all(X, y, erase=True):
+def one_vs_all(X, y, C=10, kernel=linear_kernel, erase=True):
 
     if os.path.isfile(path_to_data + 'parameters.npy') and not erase:
         parameters = load(path_to_data + 'parameters.npy').item()
@@ -124,7 +124,7 @@ def one_vs_all(X, y, erase=True):
     for i in range(number_of_classes):
         print("Class %d/%d" % (i+1, number_of_classes))
         y_binary = np.array([1 if label == i else -1 for label in y])
-        svm = SVM(gaussian_kernel, C=4)
+        svm = SVM(kernel, C)
         svm.fit(X, y_binary)
         parameters[i] = svm
         # parameters[i].save_plot(X,y,i)
