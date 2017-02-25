@@ -9,6 +9,17 @@ from numpy import save, load
 path_to_data = '../data/'
 path_to_fig = '../figures/'
 
+def split(Xtr, Ytr, val_frac = 0.3):
+    perm = np.random.permutation(Ytr.index)
+    print perm
+    n = len(Ytr)
+    end = int(val_frac * n)
+    Xval = Xtr.ix[perm[0:end]]
+    Yval = Ytr.ix[perm[0:end]]
+    Xtrain = Xtr.ix[perm[end:]]
+    Ytrain = Ytr.ix[perm[end:]]
+
+    return Xtrain, Ytrain, Xval, Yval
 
 def linear_kernel(x, y):
     return np.dot(x, y)
@@ -51,7 +62,7 @@ class SVM():
         alpha = np.ravel(solution['x'])
 
         # Support vectors correspond to non-zero lagrange multipliers
-        sv = (alpha > 1e-5)
+        sv = (alpha > 0)
         self.alpha = alpha[sv]
         self.support_vectors_x = X[sv]
         self.support_vectors_y = Y[sv]
