@@ -25,7 +25,7 @@ def linear_kernel(x, y):
     return np.dot(x, y)
 
 
-def polynomial_kernel(x, y, p=2):
+def polynomial_kernel(x, y, p=3):
     return (1 + np.dot(x, y)) ** p
 
 

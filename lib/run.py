@@ -13,14 +13,14 @@ path_to_data = '../data/'
 
 ######## Parameters #########
 C = 1
-kernel = gaussian_kernel
+kernel = linear_kernel
 Xval = 0.3
 number_folds = 1
 #############################
 
 X_test = pd.read_csv(path_to_data + 'Xte.csv', header=None, usecols=range(3072))
-Y_train = pd.read_csv(path_to_data + 'Ytr.csv')#, nrows=1000)
-X_train = pd.read_csv(path_to_data + 'Xtr.csv', header=None, usecols=range(3072))#, nrows=1000)
+Y_train = pd.read_csv(path_to_data + 'Ytr.csv', nrows=1000)
+X_train = pd.read_csv(path_to_data + 'Xtr.csv', header=None, usecols=range(3072), nrows=1000)
 
 def rgb2gray(rgb):
     return np.dot(rgb[...,:3], [0.299, 0.587, 0.114])
@@ -44,7 +44,7 @@ if (Xval > 0):
         Ytrain = Y_train['Prediction'][perm[end:]].as_matrix()
 
         print("Fitting")
-        parameters = one_vs_all(Xtrain,Ytrain, C, )
+        parameters = one_vs_all(Xtrain,Ytrain, C, kernel,)
         print('____________________')
 
         print("Predicting")
