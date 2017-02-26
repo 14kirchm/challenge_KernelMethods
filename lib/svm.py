@@ -64,14 +64,17 @@ class SVM():
         G = cvxopt.matrix(np.vstack((-np.eye(number_samples),np.eye(number_samples))), tc='d')
         h = cvxopt.matrix(np.hstack((np.zeros(number_samples), np.ones(number_samples) * self.C)), tc='d')
 
+        # hide outputs
+        cvxopt.solvers.options['show_progress'] = False
+
         solution = cvxopt.solvers.qp(P, q, G, h, A, b)
 
         # Lagrange multipliers
         alpha = np.ravel(solution['x'])
 
         # Support vectors correspond to non-zero lagrange multipliers
-        tol = 1e-05
-        sv = (alpha > tol) & (alpha < self.C - tol)
+        tol = 1e-5
+        sv = (alpha > tol) #& (alpha < self.C - tol)
         self.alpha = alpha[sv]
         self.support_vectors_x = X[sv]
         self.support_vectors_y = Y[sv]
@@ -132,7 +135,7 @@ class SVM():
         plt.close()
 
 
-def one_vs_all(X, y, C=10, kernel=linear_kernel, erase=True):
+def one_vs_all(X, y, C=10, kernel=linear_kernel, erase=True, plot=False):
 
     if os.path.isfile(path_to_data + 'parameters.npy') and not erase:
         parameters = load(path_to_data + 'parameters.npy').item()
@@ -147,7 +150,8 @@ def one_vs_all(X, y, C=10, kernel=linear_kernel, erase=True):
         svm = SVM(kernel, C)
         svm.fit(X, y_class)
         parameters[i] = svm
-        # parameters[i].save_plot(X,y,i)
+        if plot:
+            parameters[i].save_plot(X,y,i)
 
     save(path_to_data + 'parameters.npy', parameters)
 
@@ -158,7 +162,7 @@ def predict_multiclass(X, number_of_classes, parameters):
     decision_function = np.zeros((X.shape[0], number_of_classes))
 
     for i in range(number_of_classes):
-        decision_function[:, i] = np.absolute(parameters[i].score(X))
+        decision_function[:, i] = (parameters[i].score(X))
 
     y = np.argmax(decision_function, axis=1)
 

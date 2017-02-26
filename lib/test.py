@@ -2,6 +2,7 @@ import numpy as np
 from svm import *
 
 # Saves the figure in /figures
+path_to_fig = '../figures/'
 
 def gen_lin_separable_overlap_data():
     # generate training data in the 2-d case
@@ -40,8 +41,6 @@ def test_soft():
     X_train, Y_train = split_train(X1, Y1, X2, Y2)
     X_test, Y_test = split_test(X1, Y1, X2, Y2)
 
-    print(X_train)
-
     clf = SVM(gaussian_kernel, C=1)
     clf.fit(X_train, Y_train)
 
@@ -49,6 +48,43 @@ def test_soft():
     correct = np.sum(Y_predict == Y_test)
     print("%d out of %d predictions correct" % (correct, len(Y_predict)))
 
-    clf.save_plot(X_train, Y_train,1)
+    clf.save_plot(X_train, Y_train,3)
+
+def test_soft_2():
+    n_samples = 30
+    mean_1 = [0, -3]
+    cov = [[3, 0], [0, 3]]
+    X_1 = np.random.multivariate_normal(mean_1, cov, n_samples).T
+    mean_2 = [3, 3]
+    X_2 = np.random.multivariate_normal(mean_2, cov, n_samples).T
+    mean_3 = [-3, 3]
+    X_3 = np.random.multivariate_normal(mean_3, cov, n_samples).T
+    X = np.concatenate((X_1, X_2, X_3), axis = 1)
+    X = np.concatenate((np.ones((1, 3*n_samples)), X), axis=0)
+    X = X.T
+
+    y = np.concatenate((np.zeros((1,n_samples)), np.ones((1, n_samples)), 2*np.ones((1,n_samples))), axis=1)
+    y = y[0,:]
+
+    parameters = one_vs_all(X, y, 1, gaussian_kernel, True, False)
+
+    y_pred = predict_multiclass(X, 3, parameters)
+
+    plt.figure()
+    plt.plot(X[y==0,1:][:,0], X[y==0,1:][:,1], '+')
+    plt.plot(X[y==1,1:][:,0], X[y==1,1:][:,1], 'o')
+    plt.plot(X[y==2,1:][:,0], X[y==2,1:][:,1], '.')
+    #plt.plot(X[:,0], X[:,1], 'o')
+    plt.savefig(path_to_fig + str(1) + '.eps', format='eps', dpi=1000)
+    plt.close()
+
+    plt.figure()
+    plt.plot(X[y_pred==0,1:][:,0], X[y_pred==0,1:][:,1], '+')
+    plt.plot(X[y_pred==1,1:][:,0], X[y_pred==1,1:][:,1], 'o')
+    plt.plot(X[y_pred==2,1:][:,0], X[y_pred==2,1:][:,1], '.')
+    plt.savefig(path_to_fig + str(2) + '.eps', format='eps', dpi=1000)
+    plt.close()
+
+test_soft_2()
 
 test_soft()
