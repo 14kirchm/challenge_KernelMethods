@@ -3,7 +3,6 @@ from svm import *
 
 # Saves the figure in /figures
 
-
 def gen_lin_separable_overlap_data():
     # generate training data in the 2-d case
     mean1 = np.array([0, 2])
@@ -43,7 +42,7 @@ def test_soft():
 
     print(X_train)
 
-    clf = SVM(gaussian_kernel, C=1000.1)
+    clf = SVM(gaussian_kernel, C=1)
     clf.fit(X_train, Y_train)
 
     Y_predict = clf.predict(X_test)

@@ -48,6 +48,7 @@ class SVM():
                 K[i, j] = self.kernel(X[i], X[j])
 
         # solve QP
+        """
         P = cvxopt.matrix(K, tc='d')
         q = cvxopt.matrix(-Y, tc='d')
         A = cvxopt.matrix(np.ones((1, number_samples)), tc='d')
@@ -55,6 +56,13 @@ class SVM():
         G = cvxopt.matrix(np.vstack((np.diag(Y), -np.diag(Y))), tc='d')
         h = cvxopt.matrix(np.hstack((np.ones(number_samples) *
                                     self.C, np.zeros(number_samples))), tc='d')
+        """
+        P = cvxopt.matrix(np.outer(Y,Y) * K, tc='d')
+        q = cvxopt.matrix(-1*np.ones(number_samples), tc='d')
+        A = cvxopt.matrix(np.resize(Y, (1,number_samples)), tc='d')
+        b = cvxopt.matrix(0.0, tc='d')
+        G = cvxopt.matrix(np.vstack((-np.eye(number_samples),np.eye(number_samples))), tc='d')
+        h = cvxopt.matrix(np.hstack((np.zeros(number_samples), np.ones(number_samples) * self.C)), tc='d')
 
         solution = cvxopt.solvers.qp(P, q, G, h, A, b)
 
@@ -62,7 +70,8 @@ class SVM():
         alpha = np.ravel(solution['x'])
 
         # Support vectors correspond to non-zero lagrange multipliers
-        sv = (alpha > 0)
+        tol = 1e-05
+        sv = (alpha > tol) & (alpha < self.C - tol)
         self.alpha = alpha[sv]
         self.support_vectors_x = X[sv]
         self.support_vectors_y = Y[sv]
@@ -134,9 +143,9 @@ def one_vs_all(X, y, C=10, kernel=linear_kernel, erase=True):
 
     for i in range(number_of_classes):
         print("Class %d/%d" % (i+1, number_of_classes))
-        y_binary = np.array([1 if label == i else -1 for label in y])
+        y_class = np.array([1 if label == i else -1 for label in y])
         svm = SVM(kernel, C)
-        svm.fit(X, y_binary)
+        svm.fit(X, y_class)
         parameters[i] = svm
         # parameters[i].save_plot(X,y,i)
 
@@ -151,6 +160,6 @@ def predict_multiclass(X, number_of_classes, parameters):
     for i in range(number_of_classes):
         decision_function[:, i] = np.absolute(parameters[i].score(X))
 
-    y_hat = np.argmax(decision_function, axis=1)
+    y = np.argmax(decision_function, axis=1)
 
-    return y_hat
+    return y
