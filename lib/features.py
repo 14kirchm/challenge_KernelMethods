@@ -1,5 +1,4 @@
 import numpy as np
-import pdb
 
 global IM_SIZE
 IM_SIZE = 32
@@ -69,7 +68,6 @@ def hog(image, num_angle_bins=9, cell_size=8, block_size=2):
         for k in range(num_blocks):
             block_hist = histograms[:, j: j+block_size, k: k+block_size]
             block_hist = block_hist.flatten() / np.linalg.norm(block_hist)
-            pdb.set_trace()
             HOG_vector[:, j, k] = block_hist
 
     return HOG_vector.flatten()

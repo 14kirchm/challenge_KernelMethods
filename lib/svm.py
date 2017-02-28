@@ -50,7 +50,6 @@ class SVM():
                 K[i, j] = self.kernel(X[i], X[j])
 
         # solve QP
-        """
         P = cvxopt.matrix(K, tc='d')
         q = cvxopt.matrix(-Y, tc='d')
         A = cvxopt.matrix(np.ones((1, number_samples)), tc='d')
@@ -65,6 +64,7 @@ class SVM():
         b = cvxopt.matrix(0.0, tc='d')
         G = cvxopt.matrix(np.vstack((-np.eye(number_samples), np.eye(number_samples))), tc='d')
         h = cvxopt.matrix(np.hstack((np.zeros(number_samples), np.ones(number_samples) * self.C)), tc='d')
+        """
 
         # hide outputs
         cvxopt.solvers.options['show_progress'] = False
@@ -76,7 +76,7 @@ class SVM():
 
         # Support vectors correspond to non-zero lagrange multipliers
         tol = 1e-5
-        sv = (alpha > tol)  # & (alpha < self.C - tol)
+        sv = (alpha * Y) > tol  # & (alpha < self.C - tol)
         self.alpha = alpha[sv]
         self.support_vectors_x = X[sv]
         self.support_vectors_y = Y[sv]
@@ -87,14 +87,14 @@ class SVM():
         indices = np.arange(len(alpha))[sv]  # non-zero Lagrange multipliers indices
         for i in range(len(self.alpha)):
             self.b += self.support_vectors_y[i]
-            self.b -= np.sum(self.alpha * self.support_vectors_y * K[indices[i], sv])
+            self.b -= np.sum(self.alpha * K[indices[i], sv])
         self.b /= len(self.alpha)
 
         # Weight vector (only linear kernel)
         if self.kernel == linear_kernel:
             self.w = np.zeros(number_features)
             for i in range(len(self.alpha)):
-                self.w += self.alpha[i] * self.support_vectors_y[i] * self.support_vectors_x[i]  #sum_i alpha_i y_i x_i
+                self.w += self.alpha[i] * self.support_vectors_x[i]  #sum_i alpha_i y_i x_i
         else:
             self.w = None
 
@@ -107,7 +107,7 @@ class SVM():
                 Y_predict[i] = 0
                 for alpha, support_vectors_x, support_vectors_y in zip(
                         self.alpha, self.support_vectors_x, self.support_vectors_y):
-                    Y_predict[i] += alpha * support_vectors_y * self.kernel(X[i], support_vectors_x)
+                    Y_predict[i] += alpha * self.kernel(X[i], support_vectors_x)
             return Y_predict + self.b
 
     def predict(self, X):
