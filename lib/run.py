@@ -12,15 +12,16 @@ path_to_results = '../results/'
 path_to_data = '../data/'
 
 ######## Parameters #########
-C = 1
-kernel = linear_kernel
-Xval = 0.3
+C = .1
+kernel = polynomial_kernel
+size_training = 5000  # Max 5000
+valid_ratio = -1
 number_folds = 1
 #############################
 
 X_test = pd.read_csv(path_to_data + 'Xte.csv', header=None, usecols=range(3072))
-Y_train = pd.read_csv(path_to_data + 'Ytr.csv', nrows=1000)
-X_train = pd.read_csv(path_to_data + 'Xtr.csv', header=None, usecols=range(3072), nrows=1000)
+Y_train = pd.read_csv(path_to_data + 'Ytr.csv', nrows=size_training)
+X_train = pd.read_csv(path_to_data + 'Xtr.csv', header=None, usecols=range(3072), nrows=size_training)
 
 
 def rgb2gray(rgb):
@@ -36,13 +37,12 @@ for i in range(len(X_train)):
     # HOG_train[i, :] = hog(imGray, cells_per_block=(2,2))
     HOG_train[i, :] = hog(im)
 
-
-if (Xval > 0):
+if (valid_ratio):
     for n in range(number_folds):
         # Split data
         perm = np.random.permutation(Y_train.index)
         n = len(Y_train)
-        end = int(Xval * n)
+        end = int(valid_ratio * n)
         Xval = HOG_train[perm[0:end], :]
         Yval = Y_train['Prediction'][perm[0:end]].as_matrix()
         Xtrain = HOG_train[perm[end:], :]
@@ -80,9 +80,11 @@ Xtrain = HOG_train
 Ytrain = Y_train['Prediction'].as_matrix()
 Xtest = HOG_test
 
+'''
 print("Fitting")
 parameters = one_vs_all(Xtrain, Ytrain, C, kernel)
 print('____________________')
+'''
 
 print("Predicting")
 temps = time.time()

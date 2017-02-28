@@ -27,7 +27,7 @@ def linear_kernel(x, y):
     return np.dot(x, y)
 
 
-def polynomial_kernel(x, y, p=3):
+def polynomial_kernel(x, y, p=4):
     return (1 + np.dot(x, y)) ** p
 
 
@@ -76,19 +76,22 @@ class SVM():
 
         # Support vectors correspond to non-zero lagrange multipliers
         tol = 1e-5
-        sv = (alpha * Y > tol) & (alpha * Y < self.C)
+        sv = ((alpha * Y) > tol)
         self.alpha = alpha[sv]
         self.support_vectors_x = X[sv]
         self.support_vectors_y = Y[sv]
         print("%d support vectors for %d training points" % (len(self.alpha), number_samples))
 
         # Intercept
+        num_margin_vectors = 0
         self.b = 0
         indices = np.arange(len(alpha))[sv]  # non-zero Lagrange multipliers indices
         for i in range(len(self.alpha)):
-            self.b += self.support_vectors_y[i]
-            self.b -= np.sum(self.alpha * K[indices[i], sv])
-        self.b /= len(self.alpha)
+            if(self.alpha[i] * self.support_vectors_y[i] < self.C - tol):
+                num_margin_vectors += 1
+                self.b += self.support_vectors_y[i]
+                self.b -= np.sum(self.alpha * K[indices[i], sv])
+        self.b /= num_margin_vectors
 
         # Weight vector (only linear kernel)
         if self.kernel == linear_kernel:
@@ -105,7 +108,8 @@ class SVM():
             Y_predict = np.zeros(len(X))
             for i in range(len(X)):
                 Y_predict[i] = 0
-                for alpha, support_vectors_x in zip(self.alpha, self.support_vectors_x):
+                for alpha, support_vectors_x, support_vectors_y in zip(
+                        self.alpha, self.support_vectors_x, self.support_vectors_y):
                     Y_predict[i] += alpha * self.kernel(X[i], support_vectors_x)
             return Y_predict + self.b
 
