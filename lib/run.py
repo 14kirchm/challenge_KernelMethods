@@ -4,8 +4,8 @@ import numpy as np
 import math
 import time
 
-from skimage.feature import hog
-
+# from skimage.feature import hog
+from features import hog
 from svm import *
 
 path_to_results = '../results/'
@@ -22,15 +22,20 @@ X_test = pd.read_csv(path_to_data + 'Xte.csv', header=None, usecols=range(3072))
 Y_train = pd.read_csv(path_to_data + 'Ytr.csv', nrows=1000)
 X_train = pd.read_csv(path_to_data + 'Xtr.csv', header=None, usecols=range(3072), nrows=1000)
 
+
 def rgb2gray(rgb):
-    return np.dot(rgb[...,:3], [0.299, 0.587, 0.114])
+    return np.dot(rgb[..., :3], [0.299, 0.587, 0.114])
+
 
 # Compute HOG vector on training set
-HOG = np.zeros((len(X_train),324))
+HOG_train = np.zeros((len(X_train), 324))
 for i in range(len(X_train)):
-    im = X_train.ix[i].values.reshape(3,32,32).transpose(1,2,0)
-    imGray = rgb2gray(im)
-    HOG[i,:] = hog(imGray, cells_per_block=(2,2))
+    im = X_train.ix[i].values.reshape(3, 32, 32).transpose(1, 2, 0)
+
+    # imGray = rgb2gray(im)
+    # HOG_train[i, :] = hog(imGray, cells_per_block=(2,2))
+    HOG_train[i, :] = hog(im)
+
 
 if (Xval > 0):
     for n in range(number_folds):
@@ -38,13 +43,13 @@ if (Xval > 0):
         perm = np.random.permutation(Y_train.index)
         n = len(Y_train)
         end = int(Xval * n)
-        Xval = HOG[perm[0:end],:]
+        Xval = HOG_train[perm[0:end], :]
         Yval = Y_train['Prediction'][perm[0:end]].as_matrix()
-        Xtrain = HOG[perm[end:],:]
+        Xtrain = HOG_train[perm[end:], :]
         Ytrain = Y_train['Prediction'][perm[end:]].as_matrix()
 
         print("Fitting")
-        parameters = one_vs_all(Xtrain,Ytrain, C, kernel,)
+        parameters = one_vs_all(Xtrain, Ytrain, C, kernel)
         print('____________________')
 
         print("Predicting")
@@ -64,18 +69,19 @@ if (Xval > 0):
         print('____________________')
 
 # Compute HOG vector on testing set
-HOG_test = np.zeros((len(X_test),324))
+HOG_test = np.zeros((len(X_test), 324))
 for i in range(len(X_test)):
-    im = X_test.ix[i].values.reshape(3,32,32).transpose(1,2,0)
-    imGray = rgb2gray(im)
-    HOG_test[i,:] = hog(imGray, cells_per_block=(2,2))
+    im = X_test.ix[i].values.reshape(3, 32, 32).transpose(1, 2, 0)
+    # imGray = rgb2gray(im)
+    # HOG_test[i, :] = hog(imGray, cells_per_block=(2,2))
+    HOG_test[i, :] = hog(im)
 
-Xtrain = HOG
+Xtrain = HOG_train
 Ytrain = Y_train['Prediction'].as_matrix()
 Xtest = HOG_test
 
 print("Fitting")
-parameters = one_vs_all(Xtrain,Ytrain, C, )
+parameters = one_vs_all(Xtrain, Ytrain, C, kernel)
 print('____________________')
 
 print("Predicting")

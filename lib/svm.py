@@ -1,6 +1,6 @@
 import numpy as np
 from numpy import linalg
-import cvxopt  #https://courses.csail.mit.edu/6.867/wiki/images/a/a7/Qp-cvxopt.pdf
+import cvxopt  # https://courses.csail.mit.edu/6.867/wiki/images/a/a7/Qp-cvxopt.pdf
 import pylab as pl
 import matplotlib.pyplot as plt
 import os.path
@@ -9,9 +9,10 @@ from numpy import save, load
 path_to_data = '../data/'
 path_to_fig = '../figures/'
 
-def split(Xtr, Ytr, val_frac = 0.3):
+
+def split(Xtr, Ytr, val_frac=0.3):
     perm = np.random.permutation(Ytr.index)
-    print perm
+    print(perm)
     n = len(Ytr)
     end = int(val_frac * n)
     Xval = Xtr.ix[perm[0:end]]
@@ -20,6 +21,7 @@ def split(Xtr, Ytr, val_frac = 0.3):
     Ytrain = Ytr.ix[perm[end:]]
 
     return Xtrain, Ytrain, Xval, Yval
+
 
 def linear_kernel(x, y):
     return np.dot(x, y)
@@ -57,11 +59,11 @@ class SVM():
         h = cvxopt.matrix(np.hstack((np.ones(number_samples) *
                                     self.C, np.zeros(number_samples))), tc='d')
         """
-        P = cvxopt.matrix(np.outer(Y,Y) * K, tc='d')
+        P = cvxopt.matrix(np.outer(Y, Y) * K, tc='d')
         q = cvxopt.matrix(-1*np.ones(number_samples), tc='d')
-        A = cvxopt.matrix(np.resize(Y, (1,number_samples)), tc='d')
+        A = cvxopt.matrix(np.resize(Y, (1, number_samples)), tc='d')
         b = cvxopt.matrix(0.0, tc='d')
-        G = cvxopt.matrix(np.vstack((-np.eye(number_samples),np.eye(number_samples))), tc='d')
+        G = cvxopt.matrix(np.vstack((-np.eye(number_samples), np.eye(number_samples))), tc='d')
         h = cvxopt.matrix(np.hstack((np.zeros(number_samples), np.ones(number_samples) * self.C)), tc='d')
 
         # hide outputs
@@ -74,7 +76,7 @@ class SVM():
 
         # Support vectors correspond to non-zero lagrange multipliers
         tol = 1e-5
-        sv = (alpha > tol) #& (alpha < self.C - tol)
+        sv = (alpha > tol)  # & (alpha < self.C - tol)
         self.alpha = alpha[sv]
         self.support_vectors_x = X[sv]
         self.support_vectors_y = Y[sv]
