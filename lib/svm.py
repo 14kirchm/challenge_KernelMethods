@@ -76,7 +76,7 @@ class SVM():
 
         # Support vectors correspond to non-zero lagrange multipliers
         tol = 1e-5
-        sv = (alpha * Y) > tol  # & (alpha < self.C - tol)
+        sv = (alpha * Y > tol) & (alpha * Y < self.C)
         self.alpha = alpha[sv]
         self.support_vectors_x = X[sv]
         self.support_vectors_y = Y[sv]
@@ -105,8 +105,7 @@ class SVM():
             Y_predict = np.zeros(len(X))
             for i in range(len(X)):
                 Y_predict[i] = 0
-                for alpha, support_vectors_x, support_vectors_y in zip(
-                        self.alpha, self.support_vectors_x, self.support_vectors_y):
+                for alpha, support_vectors_x in zip(self.alpha, self.support_vectors_x):
                     Y_predict[i] += alpha * self.kernel(X[i], support_vectors_x)
             return Y_predict + self.b
 

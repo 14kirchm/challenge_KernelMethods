@@ -41,7 +41,7 @@ def test_soft():
     X_train, Y_train = split_train(X1, Y1, X2, Y2)
     X_test, Y_test = split_test(X1, Y1, X2, Y2)
 
-    clf = SVM(gaussian_kernel, C=1)
+    clf = SVM(linear_kernel, C=1)
     clf.fit(X_train, Y_train)
 
     Y_predict = clf.predict(X_test)
@@ -66,7 +66,7 @@ def test_soft_2():
     y = np.concatenate((np.zeros((1,n_samples)), np.ones((1, n_samples)), 2*np.ones((1,n_samples))), axis=1)
     y = y[0,:]
 
-    parameters = one_vs_all(X, y, 1, gaussian_kernel, True, False)
+    parameters = one_vs_all(X, y, 1, linear_kernel, True, False)
 
     y_pred = predict_multiclass(X, 3, parameters)
 
