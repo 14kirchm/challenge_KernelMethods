@@ -1,4 +1,5 @@
 import numpy as np
+import pdb
 
 global IM_SIZE
 IM_SIZE = 32
@@ -51,7 +52,10 @@ def hog(image, num_angle_bins=9, cell_size=8, block_size=2):
     for i in range(num_angle_bins):
         angles_inf = grad_orientation <= (angle_increment * (i + 0.5))
         angles_sup = grad_orientation > ((angle_increment * (i - 0.5)) % np.pi)
-        angles = angles_inf * angles_sup
+        if i == 0:  # The first bin wraps around 0
+            angles = np.logical_or(angles_inf, angles_sup)
+        else:
+            angles = np.logical_and(angles_inf, angles_sup)
         for j in range(num_cells):
             for k in range(num_cells):
                 cell_mask = np.zeros(angles.shape)
@@ -65,6 +69,7 @@ def hog(image, num_angle_bins=9, cell_size=8, block_size=2):
         for k in range(num_blocks):
             block_hist = histograms[:, j: j+block_size, k: k+block_size]
             block_hist = block_hist.flatten() / np.linalg.norm(block_hist)
+            pdb.set_trace()
             HOG_vector[:, j, k] = block_hist
 
     return HOG_vector.flatten()
