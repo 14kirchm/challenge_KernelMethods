@@ -13,9 +13,9 @@ path_to_data = '../data/'
 
 ######## Parameters #########
 C = .1
-kernel = polynomial_kernel
-size_training = 5000  # Max 5000
-valid_ratio = -1
+kernel = gaussian_kernel
+size_training = 1000  # Max 5000
+valid_ratio = 0.3
 number_folds = 1
 #############################
 
