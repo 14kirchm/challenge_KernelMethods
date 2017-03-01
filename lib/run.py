@@ -7,6 +7,7 @@ import time
 # from skimage.feature import hog
 from features import hog
 from svm import *
+from rotations import rotate_bdd
 
 path_to_results = '../results/'
 path_to_data = '../data/'
@@ -20,14 +21,22 @@ number_folds = 1
 #############################
 
 X_test = pd.read_csv(path_to_data + 'Xte.csv', header=None, usecols=range(3072))
-Y_train = pd.read_csv(path_to_data + 'Ytr.csv', nrows=size_training)
+Y_train_0 = pd.read_csv(path_to_data + 'Ytr.csv', nrows=size_training)
 X_train = pd.read_csv(path_to_data + 'Xtr.csv', header=None, usecols=range(3072), nrows=size_training)
 
-
+"""
 def rgb2gray(rgb):
     return np.dot(rgb[..., :3], [0.299, 0.587, 0.114])
+"""
 
+HOG_train = np.vstack([rotate_bdd(X_train,0),rotate_bdd(X_train,10),rotate_bdd(X_train,-10)])
+Y_train_1 = pd.read_csv(path_to_data + 'Ytr.csv', nrows=size_training)
+Y_train_2 = pd.read_csv(path_to_data + 'Ytr.csv', nrows=size_training)
+Y_train_1.index += size_training
+Y_train_2.index += 2*size_training
+Y_train = pd.concat([Y_train_0,Y_train_1,Y_train_2])
 
+"""
 # Compute HOG vector on training set
 HOG_train = np.zeros((len(X_train), 324))
 for i in range(len(X_train)):
@@ -36,13 +45,14 @@ for i in range(len(X_train)):
     # imGray = rgb2gray(im)
     # HOG_train[i, :] = hog(imGray, cells_per_block=(2,2))
     HOG_train[i, :] = hog(im)
+"""
 
-if (valid_ratio):
+if (valid_ratio > 0):
     for n in range(number_folds):
         # Split data
-        perm = np.random.permutation(Y_train.index)
         n = len(Y_train)
         end = int(valid_ratio * n)
+        perm = np.random.permutation(Y_train.index)
         Xval = HOG_train[perm[0:end], :]
         Yval = Y_train['Prediction'][perm[0:end]].as_matrix()
         Xtrain = HOG_train[perm[end:], :]
@@ -80,11 +90,9 @@ Xtrain = HOG_train
 Ytrain = Y_train['Prediction'].as_matrix()
 Xtest = HOG_test
 
-'''
 print("Fitting")
 parameters = one_vs_all(Xtrain, Ytrain, C, kernel)
 print('____________________')
-'''
 
 print("Predicting")
 temps = time.time()

@@ -31,7 +31,7 @@ def polynomial_kernel(x, y, p=4):
     return (1 + np.dot(x, y)) ** p
 
 
-def gaussian_kernel(x, y, sigma=5.0):
+def gaussian_kernel(x, y, sigma=0.8):
     return np.exp(-linalg.norm(x-y)**2 / (2 * (sigma ** 2)))
 
 
@@ -72,7 +72,8 @@ class SVM():
         self.alpha = alpha[sv]
         self.support_vectors_x = X[sv]
         self.support_vectors_y = Y[sv]
-        print("%d support vectors for %d training points" % (len(self.alpha), number_samples))
+        sv_stric = ((alpha * Y) > tol) & ((alpha * Y) < self.C - tol)
+        print("%d support vectors for %d training points" % (len(alpha[sv_stric]), number_samples))
 
         # Intercept
         num_margin_vectors = 0
@@ -154,11 +155,11 @@ def one_vs_all(X, y, C=10, kernel=linear_kernel, erase=True, plot=False):
 
 
 def predict_multiclass(X, number_of_classes, parameters):
-    decision_function = np.zeros((X.shape[0], number_of_classes))
+    score = np.zeros((X.shape[0], number_of_classes))
 
     for i in range(number_of_classes):
-        decision_function[:, i] = (parameters[i].score(X))
+        score[:, i] = (parameters[i].score(X))
 
-    y = np.argmax(decision_function, axis=1)
+    y = np.argmax(score, axis=1)
 
     return y
