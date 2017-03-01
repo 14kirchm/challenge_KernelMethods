@@ -57,14 +57,6 @@ class SVM():
         G = cvxopt.matrix(np.vstack((np.diag(Y), -np.diag(Y))), tc='d')
         h = cvxopt.matrix(np.hstack((np.ones(number_samples) *
                                     self.C, np.zeros(number_samples))), tc='d')
-        """
-        P = cvxopt.matrix(np.outer(Y, Y) * K, tc='d')
-        q = cvxopt.matrix(-1*np.ones(number_samples), tc='d')
-        A = cvxopt.matrix(np.resize(Y, (1, number_samples)), tc='d')
-        b = cvxopt.matrix(0.0, tc='d')
-        G = cvxopt.matrix(np.vstack((-np.eye(number_samples), np.eye(number_samples))), tc='d')
-        h = cvxopt.matrix(np.hstack((np.zeros(number_samples), np.ones(number_samples) * self.C)), tc='d')
-        """
 
         # hide outputs
         cvxopt.solvers.options['show_progress'] = False
@@ -89,8 +81,7 @@ class SVM():
         for i in range(len(self.alpha)):
             if(self.alpha[i] * self.support_vectors_y[i] < self.C - tol):
                 num_margin_vectors += 1
-                self.b += self.support_vectors_y[i]
-                self.b -= np.sum(self.alpha * K[indices[i], sv])
+                self.b += self.support_vectors_y[i] - np.dot(self.alpha,K[indices[i], sv])
         self.b /= num_margin_vectors
 
         # Weight vector (only linear kernel)
@@ -108,8 +99,7 @@ class SVM():
             Y_predict = np.zeros(len(X))
             for i in range(len(X)):
                 Y_predict[i] = 0
-                for alpha, support_vectors_x, support_vectors_y in zip(
-                        self.alpha, self.support_vectors_x, self.support_vectors_y):
+                for alpha, support_vectors_x in zip(self.alpha,self.support_vectors_x):
                     Y_predict[i] += alpha * self.kernel(X[i], support_vectors_x)
             return Y_predict + self.b
 
