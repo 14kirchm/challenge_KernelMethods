@@ -1,7 +1,7 @@
 import numpy as np
 from numpy import linalg
 import cvxopt  # https://courses.csail.mit.edu/6.867/wiki/images/a/a7/Qp-cvxopt.pdf
-import pylab as plt
+import pylab as pl
 import matplotlib.pyplot as plt
 import os.path
 from numpy import save, load
