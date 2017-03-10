@@ -49,7 +49,7 @@ class SVM():
             for j in range(number_samples):
                 K[i, j] = self.kernel(X[i], X[j])
 
-        # solve QP
+        # solve quadratic programming
         P = cvxopt.matrix(K, tc='d')
         q = cvxopt.matrix(-Y, tc='d')
         A = cvxopt.matrix(np.ones((1, number_samples)), tc='d')
@@ -81,7 +81,7 @@ class SVM():
         indices = np.arange(len(alpha))[sv]  # non-zero Lagrange multipliers indices
         for i in range(len(self.alpha)):
             if(self.alpha[i] * self.support_vectors_y[i] < self.C - tol):
-                num_margin_vectors += 1
+                num_margin_vectors += 1  # Keep only vectors on the margin
                 self.b += self.support_vectors_y[i] - np.dot(self.alpha,K[indices[i], sv])
         self.b /= num_margin_vectors
 
@@ -100,7 +100,7 @@ class SVM():
             Y_predict = np.zeros(len(X))
             for i in range(len(X)):
                 Y_predict[i] = 0
-                for alpha, support_vectors_x in zip(self.alpha,self.support_vectors_x):
+                for alpha, support_vectors_x in zip(self.alpha, self.support_vectors_x):
                     Y_predict[i] += alpha * self.kernel(X[i], support_vectors_x)
             return Y_predict + self.b
 
@@ -147,7 +147,7 @@ def one_vs_all(X, y, C=10, kernel=linear_kernel, erase=True, plot=False):
         svm.fit(X, y_class)
         parameters[i] = svm
         if plot:
-            parameters[i].save_plot(X,y,i)
+            parameters[i].save_plot(X, y, i)
 
     save(path_to_data + 'parameters.npy', parameters)
 
