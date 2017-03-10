@@ -15,7 +15,7 @@ path_to_data = '../data/'
 ######## Parameters #########
 C = .1
 kernel = gaussian_kernel
-size_training = 3000  # Max 5000
+size_training = 5000  # Max 5000
 valid_ratio = -1
 number_folds = 1
 #############################
@@ -29,13 +29,12 @@ def rgb2gray(rgb):
     return np.dot(rgb[..., :3], [0.299, 0.587, 0.114])
 """
 
-HOG_train = np.vstack([rotate_bdd(X_train, 0), rotate_bdd(X_train, 10),
-                       rotate_bdd(X_train, -10)])
+HOG_train = np.vstack([rotate_bdd(X_train, 0), rotate_bdd(X_train[:500], 10), rotate_bdd(X_train[:500], -10)])
 Y_train_1 = pd.read_csv(path_to_data + 'Ytr.csv', nrows=size_training)
-Y_train_2 = pd.read_csv(path_to_data + 'Ytr.csv', nrows=size_training)
 Y_train_1.index += size_training
-Y_train_2.index += 2*size_training
-Y_train = pd.concat([Y_train_0, Y_train_1, Y_train_2])
+Y_train_2 = pd.read_csv(path_to_data + 'Ytr.csv', nrows=size_training)
+Y_train_2.index += size_training + 500
+Y_train = pd.concat([Y_train_0, Y_train_1[:500], Y_train_2[:500]])
 
 """
 # Compute HOG vector on training set
